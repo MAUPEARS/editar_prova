@@ -1,24 +1,4 @@
-[10:07, 24/08/2020] Feenando: <div class="form-check">
-                    <input class="form-check-input" type="radio" name="tipo" id="rbDissertativa" value="D" required <?php echo ($tipo == 'D') ? 'checked' : ''; ?> onclick="disableAlternativas()"> 
-                    <label class="form-check-label" for="dissertativa">Dissertativa</label>
-               </div>
-
-               <div class="form-check">
-                   <input class="form-check-input" type="radio" name="tipo" id="rbObjetiva" value="O" required <?php echo ($tipo == 'O') ? 'checked' : ''; ?> onclick="enableAlternativas()">  
-                   <label class="form-check-label" for="objetiva" >Objetiva</label>
-               </div>
-[10:17, 24/08/2020] Mauricio Felipe: manda
-[10:17, 24/08/2020] Mauricio Felipe: completo
-[10:17, 24/08/2020] Feenando: tenta mudar o texto
-[10:17, 24/08/2020] Feenando: se não é capaz de nem respoderem
-[10:18, 24/08/2020] Mauricio Felipe: eu mudei
-[10:18, 24/08/2020] Mauricio Felipe: tudo
-[10:18, 24/08/2020] Mauricio Felipe: manda o código completo
-[10:18, 24/08/2020] Mauricio Felipe: da tela
-[10:18, 24/08/2020] Feenando: qual tela
-[10:18, 24/08/2020] Mauricio Felipe: dessa
-[10:18, 24/08/2020] Mauricio Felipe: manda todo o codigo
-[10:20, 24/08/2020] Feenando: <?php
+ <?php
     include_once("conexao.php");
     include_once("funcoes.php");
 
