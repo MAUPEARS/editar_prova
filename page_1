@@ -1,0 +1,216 @@
+[10:07, 24/08/2020] Feenando: <div class="form-check">
+                    <input class="form-check-input" type="radio" name="tipo" id="rbDissertativa" value="D" required <?php echo ($tipo == 'D') ? 'checked' : ''; ?> onclick="disableAlternativas()"> 
+                    <label class="form-check-label" for="dissertativa">Dissertativa</label>
+               </div>
+
+               <div class="form-check">
+                   <input class="form-check-input" type="radio" name="tipo" id="rbObjetiva" value="O" required <?php echo ($tipo == 'O') ? 'checked' : ''; ?> onclick="enableAlternativas()">  
+                   <label class="form-check-label" for="objetiva" >Objetiva</label>
+               </div>
+[10:17, 24/08/2020] Mauricio Felipe: manda
+[10:17, 24/08/2020] Mauricio Felipe: completo
+[10:17, 24/08/2020] Feenando: tenta mudar o texto
+[10:17, 24/08/2020] Feenando: se não é capaz de nem respoderem
+[10:18, 24/08/2020] Mauricio Felipe: eu mudei
+[10:18, 24/08/2020] Mauricio Felipe: tudo
+[10:18, 24/08/2020] Mauricio Felipe: manda o código completo
+[10:18, 24/08/2020] Mauricio Felipe: da tela
+[10:18, 24/08/2020] Feenando: qual tela
+[10:18, 24/08/2020] Mauricio Felipe: dessa
+[10:18, 24/08/2020] Mauricio Felipe: manda todo o codigo
+[10:20, 24/08/2020] Feenando: <?php
+    include_once("conexao.php");
+    include_once("funcoes.php");
+
+    $mensagem = "";
+
+    /*
+        ==> Declarar uma variável para cada campo da tabela
+    */
+    
+    $idquestao = "";
+    $enunciado = "";
+    $tipo = "";
+    $resposta_A = "";
+    $resposta_B = "";
+    $resposta_C = "";
+    $resposta_D = "";
+    $resposta_E = "";
+
+    $podeAlterar = "";
+
+    if (! isset($_POST["acao"])) {
+        $descr_acao = "Incluir";
+    } else{
+        $acao = $_POST["acao"];
+        if (strtoupper($acao) == "INCLUIR" || strtoupper($acao) == "SALVAR") {
+            /*
+                ==> Atribur os dados recebidos por POST às variáveis (exceto a chave primária)
+            */                    
+            $enunciado = mysqli_real_escape_string($bd, $_POST["enunciado"]);
+            $tipo = mysqli_real_escape_string($bd, $_POST["tipo"]);
+            $resposta_A = mysqli_real_escape_string($bd, $_POST["resposta_A"]);
+            $resposta_B = mysqli_real_escape_string($bd, $_POST["resposta_B"]);
+            $resposta_C = mysqli_real_escape_string($bd, $_POST["resposta_C"]);
+            $resposta_D = mysqli_real_escape_string($bd, $_POST["resposta_D"]);
+            $resposta_E = mysqli_real_escape_string($bd, $_POST["resposta_E"]);
+        }
+
+        if (strtoupper($acao) == "SALVAR" || strtoupper($acao) == "EXCLUIR" || strtoupper($acao) == "BUSCAR") {
+            /*
+                ==> Atribur a chave primária
+            */
+            $idquestao = $_POST["idquestao"];
+        }
+
+        if (strtoupper($acao) == "INCLUIR") {
+            /*
+                ==> Montar um comando SQL do tipo INSERT declarando todas as colunas e valores 
+                (observe a necessidade de aspas em campos do tipo caracter e do tipo data.
+            */
+            
+            $sql = "INSERT into questao (enunciado, tipo, resposta_A, resposta_B, resposta_C, resposta_D, resposta_E)
+                    values ('$enunciado',
+                            '$tipo',
+                            '$resposta_A',
+                            '$resposta_B',
+                            '$resposta_C',
+                            '$resposta_D',
+                            '$resposta_E')";
+            if ( ! mysqli_query($bd, $sql)) {
+                $mensagem = "<h3>Ocorreu um erro ao inserir os dados</h3>
+                <h3>Erro: ".mysqli_error($bd)."</h3>
+                <h3>Código: ".mysqli_errno($bd)."</h3>";
+                $descr_acao = "Incluir";
+            }else{
+                $descr_acao = "Salvar";
+                $idquestao = mysqli_insert_id($bd);
+            }
+
+        } else if (strtoupper($acao) == "SALVAR") {
+            $descr_acao = "Salvar";
+            /*
+                ==> Montar um comando SQL do tipo UPDATE para fazer a atualização dos dados que podem ser alterados (não é obrigatório usar todos)
+                (observe a necessidade de aspas em campos do tipo caracter e do tipo data.
+            */
+            $sql = "UPDATE questao 
+                    set enunciado = '$enunciado', 
+                    resposta_A = '$resposta_A', 
+                    resposta_B = '$resposta_B', 
+                    resposta_C = '$resposta_C', 
+                    resposta_D = '$resposta_D', 
+                    resposta_E = '$resposta_E',
+                    tipo = '$tipo'
+                    where idquestao = $idquestao";
+                            
+                 if ( ! mysqli_query($bd, $sql) ) {
+                    /*
+                        ==> Se sua tabela tiver um campo UNIQUE (ex. login, CPF, nº de matrícula, etc., configure a mensagem abaixo (a mensagem vai aparecer quando houver uma duplicação de valor não autorizada)
+                    */
+                    if ( mysqli_errno($bd) == 1062 ) {
+                        $mensagem = "<h3>Não foi possível fazer a inclusão (dados duplicados)</h3>";
+                    } else {
+                        $mensagem = "<h3>Ocorreu um erro ao alterar os dados: </h3> <h3>".mysqli_error($bd)."</h3>".$sql. "<h4>".mysqli_errno($bd)."</h4>";
+                    }
+                }
+            header("location: questao.php");                  
+        } else if (strtoupper($acao) == "BUSCAR"){
+            $descr_acao = "Salvar";
+            $sql = "SELECT * from questao where idquestao = $idquestao";
+            $resultado = mysqli_query($bd, $sql);
+
+            if (mysqli_num_rows($resultado) == 1) {
+                $dados = mysqli_fetch_assoc($resultado);
+                $idquestao = $dados["idquestao"];
+                $enunciado = $dados["enunciado"];
+                $tipo = $dados["tipo"];
+                $resposta_A = $dados["resposta_A"];
+                $resposta_B = $dados["resposta_B"];
+                $resposta_C = $dados["resposta_C"];
+                $resposta_D = $dados["resposta_D"];
+                $resposta_E = $dados["resposta_E"];
+            }
+        }
+    }
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Editar Questão</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="imagem/png" href="Imagens/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="Login/css/util.css">
+    <link rel="stylesheet" type="text/css" href="Login/css/main.css">
+</head>
+<body style="background-color: #EEE9E9">
+    <?php include_once("navbar.php"); ?>
+    <?php include_once("boots.php"); ?>
+    <?php  
+        $mensagem = "";
+        if ( isset( $_GET["mensagem"] ) )
+            $mensagem = $_GET["mensagem"];
+    ?>
+
+    <script>
+        function disableAlternativas() {
+            document.getElementById('enunciado').disabled=false
+            document.getElementById('resposta_A').disabled=true
+            document.getElementById('resposta_B').disabled=true
+            document.getElementById('resposta_C').disabled=true
+            document.getElementById('resposta_D').disabled=true
+            document.getElementById('resposta_E').disabled=true 
+        }
+
+        function enableAlternativas() {
+            document.getElementById('enunciado').disabled=false
+            document.getElementById('resposta_A').disabled=false
+            document.getElementById('resposta_B').disabled=false
+            document.getElementById('resposta_C').disabled=false
+            document.getElementById('resposta_E').disabled=false
+            document.getElementById('resposta_D').disabled=false
+        }
+    </script>
+    
+    <form method="POST"><br>
+        <span class="login100-form-title p-70">Editar Questão Cadastrada</span><br>
+            <center>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="tipo" id="rbDissertativa" value="D" required <?php echo ($tipo == 'D') ? 'checked' : ''; ?> onclick="disableAlternativas()"> 
+                    <label class="form-check-label" for="dissertativa">Dissertativa</label>
+               </div>
+
+               <div class="form-check">
+                   <input class="form-check-input" type="radio" name="tipo" id="rbObjetiva" value="O" required <?php echo ($tipo == 'O') ? 'checked' : ''; ?> onclick="enableAlternativas()">  
+                   <label class="form-check-label" for="objetiva" >Objetiva</label>
+               </div>
+
+                <label for="enunciado">Enunciado: </label>
+                <input type="text" id="enunciado" class="col-sm-6 col-form-label" name="enunciado" size="500" maxlength="500" placeholder="Enunciado" value="<?php echo $enunciado; ?>" <?php echo $podeAlterar; ?>><br><br>
+       
+                <label for="a">A) </label>
+                <input type="text" id="resposta_A" class="col-sm-6 col-form-label" name="resposta_A" size="200" maxlength="200" placeholder="Alternativa A" value="<?php echo $resposta_A; ?>" <?php echo $podeAlterar; ?> disabled><br><br>
+
+                <label for="b">B) </label>
+                <input type="text" id="resposta_B" class="col-sm-6 col-form-label" name="resposta_B" size="200" maxlength="200" placeholder="Alternativa B" value="<?php echo $resposta_B; ?>" <?php echo $podeAlterar; ?> disabled><br><br>
+
+                <label for="c">C) </label>
+                <input type="text" id="resposta_C" class="col-sm-6 col-form-label" name="resposta_C" size="200" maxlength="200" placeholder="Alternativa C" value="<?php echo $resposta_C; ?>" <?php echo $podeAlterar; ?> disabled><br><br>
+
+                <label for="d">D) </label>
+                <input type="text" id="resposta_D" class="col-sm-6 col-form-label" name="resposta_D" size="200" maxlength="200" placeholder="Alternativa D" value="<?php echo $resposta_D; ?>" <?php echo $podeAlterar; ?> disabled><br><br>
+
+                <label for="e">E) </label>
+                <input type="text" id="resposta_E" class="col-sm-6 col-form-label" name="resposta_E" size="200" maxlength="200" placeholder="Alternativa E" value="<?php echo $resposta_E; ?>" <?php echo $podeAlterar; ?> disabled><br><br>
+
+                <div>
+                    <input type="hidden" name="idquestao" value="<?php echo $idquestao; ?>">
+                    <a href="questao.php" class="btn btn-dark">Cancelar</a>
+                    <input type="submit" tabindex="1" class="btn btn-dark" name="acao" value="<?php echo $descr_acao; ?>" <?php echo $podeAlterar; ?> >
+                </div>
+            </center>
+    </form>
+    <div id="dropDownSelect1"></div>
+</body>
+</html>
